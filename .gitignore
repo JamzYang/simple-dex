@@ -1,7 +1,7 @@
 node_modules
 .env
 .env.enc
-
+.idea
 # Hardhat files
 cache
 artifacts
