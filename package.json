@@ -11,12 +11,12 @@
     "verify:optimism": "hardhat verify --network optimismGoerli"
   },
   "dependencies": {
-    "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@openzeppelin/contracts": "^4.8.0",
     "dotenv": "^16.0.3"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.12",
     "@nomiclabs/hardhat-ethers": "^2.2.1",
     "@types/chai-as-promised": "^8.0.1",
     "@types/node": "^18.11.9",

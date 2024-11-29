@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, run } from "hardhat";
 
 async function main() {
   // 部署 Token 合约
@@ -30,10 +30,26 @@ async function main() {
 
   // 可选：验证合约
   await Promise.all([
-    run("verify:sepolia", { address: token0.address, constructorArguments: ["TestToken0", "TK0", ethers.utils.parseEther("1000000")] }),
-    run("verify:sepolia", { address: token1.address, constructorArguments: ["TestToken1", "TK1", ethers.utils.parseEther("1000000")] }),
-    run("verify:sepolia", { address: factory.address, constructorArguments: [] }),
-    run("verify:sepolia", { address: pairAddress, constructorArguments: [] })
+    run("verify:verify", {
+      address: token0.address,
+      contract: "contracts/Token.sol:Token",
+      constructorArguments: ["TestToken0", "TK0", ethers.utils.parseEther("1000000")]
+    }),
+    run("verify:verify", {
+      address: token1.address,
+      contract: "contracts/Token.sol:Token",
+      constructorArguments: ["TestToken1", "TK1", ethers.utils.parseEther("1000000")]
+    }),
+    run("verify:verify", {
+      address: factory.address,
+      contract: "contracts/Factory.sol:Factory",
+      constructorArguments: []
+    }),
+    run("verify:verify", {
+      address: pairAddress,
+      contract: "contracts/Pair.sol:Pair",
+      constructorArguments: []
+    })
   ]).catch(console.error);
 }
 
