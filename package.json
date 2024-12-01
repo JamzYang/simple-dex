@@ -14,7 +14,7 @@
     "@openzeppelin/contracts": "^4.8.0",
     "@web3-react/core": "^8.2.3",
     "@web3-react/injected-connector": "^6.0.7",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.4.5"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",

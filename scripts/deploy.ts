@@ -1,5 +1,6 @@
 import { ethers, run } from "hardhat";
 import fs from "fs";
+import path from "path";
 
 async function main() {
   // 部署 Token 合约
@@ -27,10 +28,29 @@ async function main() {
   await factory.deployed();
   console.log(`Factory deployed to: ${factory.address}`);
 
+  // 部署 Router 合约
+  const Router = await ethers.getContractFactory("Router");
+  const router = await Router.deploy(factory.address);
+  await router.deployed();
+  console.log(`Router deployed to: ${router.address}`);
+
   // 创建交易对
-  await factory.createPair(token0.address, token1.address);
+  const createPairTx = await factory.createPair(token0.address, token1.address);
+  await createPairTx.wait();
   const pairAddress = await factory.getPair(token0.address, token1.address);
   console.log(`Pair deployed to: ${pairAddress}`);
+
+  // 更新 addresses.json
+  const addressesPath = path.join(__dirname, '../frontend/src/contracts/addresses.json');
+  const addresses = {
+    token0: token0.address,
+    token1: token1.address,
+    factory: factory.address,
+    pair: pairAddress,
+    router: router.address
+  };
+  fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
+  console.log('Addresses updated in addresses.json');
 
   // 可选：验证合约
   await Promise.all([
@@ -50,24 +70,11 @@ async function main() {
       constructorArguments: []
     }),
     run("verify:verify", {
-      address: pairAddress,
-      contract: "contracts/Pair.sol:Pair",
-      constructorArguments: []
-    })
-  ]).catch(console.error);
-
-  // 将合约地址保存到文件中，供前端使用
-  const contractAddresses = {
-    token0: token0.address,
-    token1: token1.address,
-    factory: factory.address,
-    pair: pairAddress
-  };
-
-  fs.writeFileSync(
-    "./frontend/src/contracts/addresses.json",
-    JSON.stringify(contractAddresses, null, 2)
-  );
+      address: router.address,
+      contract: "contracts/Router.sol:Router",
+      constructorArguments: [factory.address]
+    }),
+  ]);
 
   // 为测试账户铸造一些代币
   const [deployer] = await ethers.getSigners();
