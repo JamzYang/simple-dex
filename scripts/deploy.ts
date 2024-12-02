@@ -52,6 +52,25 @@ async function main() {
   fs.writeFileSync(addressesPath, JSON.stringify(addresses, null, 2));
   console.log('Addresses updated in addresses.json');
 
+// 复制ABI文件到前端目录
+const abiDir = path.join(__dirname, '../artifacts/contracts');
+const frontendAbiDir = path.join(__dirname, '../frontend/src/contracts/abis');
+
+const copyAbiFiles = (dir: string) => {
+  fs.readdirSync(dir).forEach((file) => {
+    const fullPath = path.join(dir, file);
+    if (fs.statSync(fullPath).isDirectory()) {
+      copyAbiFiles(fullPath);
+    } else if (file.endsWith('.json') && !file.endsWith('.dbg.json')) {
+      const destPath = path.join(frontendAbiDir, file);
+      fs.copyFileSync(fullPath, destPath);
+      console.log(`Copied ${file} to frontend ABI directory`);
+    }
+  });
+};
+
+copyAbiFiles(abiDir);
+
   // 可选：验证合约
   await Promise.all([
     run("verify:verify", {
@@ -92,3 +111,4 @@ main()
     console.error(error);
     process.exit(1);
   });
+

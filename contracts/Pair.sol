@@ -4,6 +4,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "hardhat/console.sol";
 
 contract Pair is ERC20, ReentrancyGuard {
     address public token0;
@@ -89,8 +90,8 @@ contract Pair is ERC20, ReentrancyGuard {
     function swap(uint256 amount0Out, uint256 amount1Out, address to) external nonReentrant {
         require(amount0Out > 0 || amount1Out > 0, "INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 _reserve0, uint112 _reserve1,) = getReserves();
+        console.log("reserve0: %s, reserve1: %s", _reserve0, _reserve1);
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "INSUFFICIENT_LIQUIDITY");
-
         uint256 balance0;
         uint256 balance1;
         { // scope for _token{0,1}, avoids stack too deep errors
@@ -105,8 +106,8 @@ contract Pair is ERC20, ReentrancyGuard {
 
         uint256 amount0In = balance0 > _reserve0 - amount0Out ? balance0 - (_reserve0 - amount0Out) : 0;
         uint256 amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
+        console.log("amount0In: %s, amount1In: %s", amount0In, amount1In);
         require(amount0In > 0 || amount1In > 0, "INSUFFICIENT_INPUT_AMOUNT");
-
         // 验证k值不变，考虑0.3%手续费
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
             uint256 balance0Adjusted = balance0 * 1000;
@@ -116,6 +117,7 @@ contract Pair is ERC20, ReentrancyGuard {
 
             // 验证调整后的k值，确保不小于原始k值
             uint256 k = uint256(_reserve0) * uint256(_reserve1);
+            console.log("balance0Adjusted: %s, balance1Adjusted: %s, K: %s", balance0Adjusted, balance1Adjusted,k);
             require(balance0Adjusted * balance1Adjusted >= k * 1000000, "K");
         }
 
